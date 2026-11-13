@@ -16,51 +16,68 @@ html,body{margin:0;min-height:100%}
 body{font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--fg);-webkit-text-size-adjust:100%;overflow-wrap:anywhere}
 button,input,select,textarea{font:inherit;color:inherit}
 .app{display:grid;grid-template-columns:minmax(0,1fr);gap:0;padding:0 max(12px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
-/* preview panel */
-.pv{position:sticky;top:0;z-index:5;background:var(--bg);padding:max(8px,env(safe-area-inset-top)) 0 8px;min-width:0}
-.nopin .pv{position:static}
-.tb{display:grid;gap:6px;margin-bottom:8px}
-.tb .row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
-.pvbox{position:relative;width:min(100%,24vh);width:min(100%,24dvh);aspect-ratio:1;margin:0 auto;border-radius:10px;overflow:hidden;border:1px solid var(--line);
+/* shell */
+html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
+#app{height:100vh;height:100dvh;display:flex;flex-direction:column;max-width:1200px;margin:0 auto}
+.main{flex:1;min-height:0;display:flex;flex-direction:column}
+.stage{flex:1;min-height:0;display:flex;flex-direction:column;padding:max(8px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) 0 max(10px,env(safe-area-inset-left))}
+#app[data-screen=home] .stage{padding-bottom:max(8px,env(safe-area-inset-bottom))}
+.pvarea{flex:1;min-height:0;container-type:size;display:grid;place-items:center}
+.pvbox,.edwrap{position:relative;width:100cqmin;height:100cqmin;border-radius:10px;overflow:hidden;border:1px solid var(--line);color-scheme:light;
  background:repeating-conic-gradient(#cfd3da 0 25%,#fff 0 50%) 0 0/16px 16px}
 .pvbox canvas,.pvbox img{position:absolute;inset:0;width:100%;height:100%;display:block}
 .pvbox img{object-fit:contain}
 .pvbox.stale img{opacity:.45}
+.edwrap{display:none}
+.edwrap canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
+#app[data-screen=crop]:not(.nologo) .edwrap{display:block}
+#app[data-screen=crop]:not(.nologo) .pvbox{display:none}
 .spin{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
-.spin i{width:28px;height:28px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--acc);animation:sp .8s linear infinite}
+.spin i{width:28px;height:28px;border-radius:50%;border:3px solid #ccc;border-top-color:var(--acc);animation:sp .8s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-.stat{font-size:12.5px;color:var(--mut);text-align:center;margin-top:6px;min-height:1.4em}
-#msg{font-size:13px;text-align:center;margin-top:4px;min-height:1.3em;font-weight:600}
+.stat{flex:none;font-size:12.5px;color:var(--mut);text-align:center;padding-top:5px;min-height:1.6em;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#edhint{display:none;white-space:normal}
+#app[data-screen=crop]:not(.nologo) #edhint{display:block}
+#app[data-screen=crop]:not(.nologo) #stat{display:none}
+#msg{position:fixed;top:max(10px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:60;max-width:calc(100vw - 24px);width:max-content;padding:9px 16px;border-radius:99px;background:var(--card);border:1px solid var(--line);box-shadow:0 6px 24px rgba(0,0,0,.25);font-size:13.5px;font-weight:600;text-align:center}
+#msg:empty{display:none}
 #msg.ok{color:var(--ok)}#msg.warn{color:var(--warn)}#msg.bad{color:var(--bad)}
 .pill{display:inline-block;padding:1px 8px;border-radius:99px;font-weight:700;font-size:12px;border:1px solid currentColor}
 .pill.ok{color:var(--ok)}.pill.warn{color:var(--warn)}.pill.bad{color:var(--bad)}
+/* floating pencil + menu */
+#fab{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));width:58px;height:58px;border-radius:50%;border:0;background:var(--acc);color:var(--acc-fg);font-size:26px;line-height:1;display:grid;place-items:center;box-shadow:0 6px 20px rgba(0,0,0,.35);cursor:pointer;z-index:40}
+#fab:active{transform:scale(.95)}
+#app:not([data-screen=home]) ~ #fab{display:none}
+#mback{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.3)}
+#menu{position:fixed;z-index:35;right:max(14px,env(safe-area-inset-right));bottom:calc(max(16px,env(safe-area-inset-bottom)) + 70px);width:min(330px,calc(100vw - 28px));max-height:calc(100dvh - 110px);overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:8px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;box-shadow:0 10px 36px rgba(0,0,0,.35)}
+#app:not([data-screen=home]) ~ #menu{bottom:max(16px,env(safe-area-inset-bottom))}
+.mi{display:flex;align-items:center;gap:8px;min-height:48px;padding:0 10px;border:1px solid var(--line);border-radius:12px;background:var(--bg);font-weight:600;font-size:14px;text-align:left;cursor:pointer;min-width:0;white-space:nowrap;overflow:hidden}
+.mi span{font-size:19px;flex:none}
+.mi.pri{background:var(--acc);color:var(--acc-fg);border-color:transparent}
+/* bottom sheet */
+.sheet{display:none;flex:0 1 auto;max-height:52%;min-height:0;flex-direction:column;background:var(--card);border:1px solid var(--line);border-bottom:0;border-radius:18px 18px 0 0;box-shadow:0 -6px 24px rgba(0,0,0,.18)}
+#app:not([data-screen=home]) .sheet{display:flex}
+.sh{flex:none;display:grid;grid-template-columns:auto auto auto minmax(0,1fr) auto auto;align-items:center;gap:5px;padding:6px 8px;border-bottom:1px solid var(--line)}
+.sh b{text-align:center;font-size:13.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sh .btn{min-height:38px;padding:0 10px;font-size:14px}
+.sb{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px 14px max(14px,env(safe-area-inset-bottom))}
+.scr{display:none}.scr.on{display:grid;gap:12px}
+#app[data-screen=crop]:not(.nologo) .sheet{max-height:46%}
+@media (min-width:760px),(min-width:560px) and (orientation:landscape){
+ .main{flex-direction:row}
+ .stage{flex:1 1 auto!important;padding-bottom:max(8px,env(safe-area-inset-bottom))!important;min-width:0}
+ .sheet{flex:0 0 min(46%,420px)!important;max-height:none!important;border-radius:0;border-width:0 0 0 1px;box-shadow:none}
+}
 /* controls */
-.ctl{min-width:0}
-h1{font-size:18px;margin:10px 2px 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.th{margin-left:auto;flex:none;min-width:170px}.th button{min-height:32px!important;font-size:12.5px!important;padding:0 9px!important}
-h1 small{font-weight:400;color:var(--mut);font-size:12.5px}
-.sec{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin:0 0 10px;min-width:0}
-.sec>summary{cursor:pointer;padding:0 14px;min-height:48px;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center}
-.sec>summary::-webkit-details-marker{display:none}
-.sec>summary::after{content:"▾";color:var(--mut);transition:transform .15s}
-.sec[open]>summary::after{transform:rotate(180deg)}
-.bd{padding:2px 14px 14px;display:grid;gap:12px;min-width:0}
-.sub{border:1px solid var(--line);border-radius:10px;min-width:0}
-.sub>summary{cursor:pointer;padding:0 12px;min-height:42px;display:flex;align-items:center;font-weight:600;font-size:14px;list-style:none}
-.sub>summary::-webkit-details-marker{display:none}
-.sub>summary::before{content:"▸";margin-right:8px;color:var(--mut)}
-.sub[open]>summary::before{content:"▾"}
-.sub .bd{padding-top:4px}
 label.l,.fld>label{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--mut);margin-bottom:4px}
 .fld>label i{font-style:normal;opacity:.8}
 .fr{display:grid;grid-template-columns:minmax(0,1fr) 88px;gap:10px;align-items:center}
 .fr.num{grid-template-columns:minmax(0,1fr)}
 input[type=number],input[type=text],input[type=url],select,textarea{width:100%;min-width:0;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);min-height:42px}
-textarea{resize:vertical;min-height:70px}
+textarea{resize:none;min-height:64px}
 input[type=range]{width:100%;min-width:0;height:30px;accent-color:var(--acc);margin:0}
 input[type=color]{width:100%;height:42px;padding:2px;border:1px solid var(--line);border-radius:10px;background:var(--bg);min-width:0}
 .g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .chk{display:flex;align-items:center;gap:10px;min-height:36px;font-size:14px}
 .chk input{width:20px;height:20px;accent-color:var(--acc);flex:none}
 .btn{min-height:42px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-weight:600;cursor:pointer;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -73,19 +90,23 @@ input[type=color]{width:100%;height:42px;padding:2px;border:1px solid var(--line
 .seg button{flex:1;min-width:0;min-height:40px;border:0;border-right:1px solid var(--line);background:var(--card);padding:0 6px;font-weight:600;cursor:pointer;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .seg button:last-child{border-right:0}
 .seg button.on{background:var(--acc);color:var(--acc-fg)}
-.seg.sm button{min-height:34px;font-size:13px}
 .hint{font-size:12.5px;color:var(--mut);margin:0}
 .warn-t{color:var(--warn);font-size:13px;margin:0}
 .dz{display:grid;place-items:center;text-align:center;gap:4px;padding:22px 12px;border:2px dashed var(--line);border-radius:12px;cursor:pointer;color:var(--mut);min-height:110px}
 .dz.over{border-color:var(--acc);color:var(--fg)}
 .dz b{color:var(--fg)}
-.edwrap{position:relative;width:100%;aspect-ratio:1;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:repeating-conic-gradient(#cfd3da 0 25%,#fff 0 50%) 0 0/16px 16px;max-width:min(100%,70dvh);margin:0 auto}
-.edwrap canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chips .btn{flex:1 1 56px}
 .fn{display:flex;align-items:center;gap:8px;min-width:0}
 .fn span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;color:var(--mut)}
-.only-m{display:inline-block}
+.sub{border:1px solid var(--line);border-radius:10px;min-width:0}
+.sub>summary{cursor:pointer;padding:0 12px;min-height:42px;display:flex;align-items:center;font-weight:600;font-size:14px;list-style:none}
+.sub>summary::-webkit-details-marker{display:none}
+.sub>summary::before{content:"▸";margin-right:8px;color:var(--mut)}
+.sub[open]>summary::before{content:"▾"}
+.bd{padding:4px 12px 12px;display:grid;gap:12px;min-width:0}
+.stack{display:grid;gap:12px}
+.foot .g2{grid-template-columns:1fr}.foot{position:sticky;bottom:-1px;background:var(--card);padding:10px 0 2px;margin-top:4px}
 /* view overlay */
 #vw{position:fixed;inset:0;z-index:50;background:#0b0c0f;color:#eee;display:flex;flex-direction:column}
 #vw .vt{display:flex;gap:6px;align-items:center;padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) 8px max(8px,env(safe-area-inset-left));flex-wrap:wrap;justify-content:center}
@@ -97,166 +118,166 @@ input[type=color]{width:100%;height:42px;padding:2px;border:1px solid var(--line
 #vc{position:absolute;inset:0;width:100%;height:100%}
 #vi{position:absolute;left:0;top:0;transform-origin:0 0;max-width:none;-webkit-user-drag:none;user-select:none;pointer-events:none;background:#fff}
 #vh{position:absolute;left:0;right:0;bottom:max(8px,env(safe-area-inset-bottom));text-align:center;font-size:12px;opacity:.6;pointer-events:none}
-/* layout switch */
-@media (min-width:860px),(min-width:600px) and (orientation:landscape){
- html,body{height:100%}
- body{overflow:hidden}
- .app{height:100dvh;height:100vh;height:100dvh;grid-template-columns:minmax(0,1fr) minmax(320px,440px);gap:16px;padding-top:0;padding-bottom:0}
- .pv{position:static;overflow:auto;padding:12px 0;display:flex;flex-direction:column;align-items:stretch}
- .pvbox{width:min(100%,calc(100vh - 170px));width:min(100%,calc(100dvh - 170px));min-width:140px}
- .ctl{overflow:auto;padding:0 2px 24px;-webkit-overflow-scrolling:touch}
- .only-m{display:none}
-}
 </style>
 </head>
 <body>
-<div class="app" id="app">
- <section class="pv" aria-label="Preview">
-  <div class="tb">
-   <div class="seg sm" data-mode="acc" role="group" aria-label="Preview mode">
-    <button data-v="0" class="on" title="Fast live drawing">Live preview</button>
-    <button data-v="1" title="Generates the real export file and shows those exact bytes">Accurate (WYSIWYG)</button>
+<div id="app" data-screen="home" class="nologo">
+ <div class="main">
+  <section class="stage" aria-label="Preview">
+   <div class="pvarea">
+    <div class="pvbox" id="pvbox"><canvas id="pc"></canvas><img id="pi" alt="Accurate preview" hidden><div class="spin" id="spin" hidden><i></i></div></div>
+    <div class="edwrap" id="edwrap"><canvas id="ed"></canvas></div>
    </div>
-   <div class="row">
-    <button class="btn sm" id="bView">🔍 View</button>
-    <button class="btn sm" id="bScan">✓ Scan</button>
-    <button class="btn sm only-m" id="bPin">📌 Pin</button>
-    <button class="btn sm pri" id="bSave2">⬇ Save</button>
-   </div>
-  </div>
-  <div class="pvbox" id="pvbox"><canvas id="pc"></canvas><img id="pi" alt="Accurate preview" hidden><div class="spin" id="spin" hidden><i></i></div></div>
-  <div class="stat" id="stat"></div>
-  <div id="msg" role="status" aria-live="polite"></div>
- </section>
+   <div class="stat" id="stat"></div>
+   <div class="stat" id="edhint"></div>
+  </section>
 
- <main class="ctl">
-  <h1>QR Studio <small>logo · crop · frame · HD export</small>
-   <div class="seg th" id="theme" role="group" aria-label="Theme"><button data-v="auto">Auto</button><button data-v="light">Light</button><button data-v="dark">Dark</button></div></h1>
+  <section class="sheet" aria-label="Settings">
+   <div class="sh"><button class="btn" id="bMenu" aria-label="Menu">☰</button><button class="btn" id="bUndo" aria-label="Undo" disabled>↶</button><button class="btn" id="bRedo" aria-label="Redo" disabled>↷</button><b id="ttl"></b><button class="btn" id="bCancel">Cancel</button><button class="btn pri" id="bOk">Confirm</button></div>
+   <div class="sb" id="sb">
 
-  <details class="sec">
-   <summary>1 · Content</summary>
-   <div class="bd">
-    <div><label class="l" for="text">Link or text</label>
-     <textarea id="text" data-b="S.text" rows="2" inputmode="url" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="https://example.com"></textarea>
-     <p class="hint" id="qinfo"></p></div>
-    <div><label class="l">Error correction (more = tolerates bigger logo)</label>
-     <div class="seg" data-seg="S.ec"><button data-v="L">L 7%</button><button data-v="M">M 15%</button><button data-v="Q">Q 25%</button><button data-v="H">H 30%</button></div></div>
-    <div class="g2">
-     <div><label class="l" for="fg">QR color</label><input type="color" id="fg" data-b="S.fg"></div>
-     <div><label class="l" for="bg">QR background</label><input type="color" id="bg" data-b="S.bg"></div>
+    <div class="scr" data-s="link">
+     <div><label class="l" for="text">Link or text</label>
+      <textarea id="text" data-b="S.text" rows="2" inputmode="url" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="https://example.com"></textarea>
+      <p class="hint" id="qinfo" style="margin-top:4px"></p></div>
+     <div><label class="l">Error correction (more = tolerates a bigger logo)</label>
+      <div class="seg" data-seg="S.ec"><button data-v="L">L 7%</button><button data-v="M">M 15%</button><button data-v="Q">Q 25%</button><button data-v="H">H 30%</button></div></div>
+     <div class="fld" data-o="S" data-k="q" data-l="Quiet zone" data-u="modules" data-min="0" data-max="12" data-step="1"></div>
     </div>
-    <div class="fld" data-o="S" data-k="q" data-l="Quiet zone" data-u="modules" data-min="0" data-max="12" data-step="1"></div>
-   </div>
-  </details>
 
-  <details class="sec" id="secLogo">
-   <summary>2 · Logo</summary>
-   <div class="bd">
-    <label class="dz" id="dz" for="file"><b>Tap to choose a logo</b><span>or drop / paste an image here</span><span style="font-size:12px">PNG · JPG · WebP · SVG</span></label>
-    <input type="file" id="file" accept="image/*" hidden>
-    <div id="logoTools" hidden style="display:none;gap:12px">
-     <div class="fn"><span id="fname"></span><button class="btn sm" id="bRepl">Replace</button><button class="btn sm" id="bRem">Remove</button></div>
-     <div><label class="l">Editing handles</label>
-      <div class="seg" data-seg="L.mode"><button data-v="mask">Crop mask</button><button data-v="image">Stretch / move image</button></div></div>
-     <div class="edwrap" id="edwrap"><canvas id="ed"></canvas></div>
-     <p class="hint" id="edhint"></p>
-     <div><label class="l">Crop shape</label>
-      <div class="seg" data-seg="S.shape"><button data-v="rect">Rectangle</button><button data-v="circle">Circle / oval</button><button data-v="round">Rounded</button></div></div>
-     <div class="fld" id="radRow" data-o="S" data-k="rad" data-l="Corner rounding" data-u="%" data-min="0" data-max="100" data-step="1"></div>
+    <div class="scr" data-s="logo">
+     <label class="dz" id="dz" data-no for="file"><b>Tap to choose a logo</b><span>or drop / paste an image here</span><span style="font-size:12px">PNG · JPG · WebP · SVG</span></label>
+     <input type="file" id="file" accept="image/*" hidden>
+     <div data-has hidden class="stack">
+      <div class="fn"><span id="fname"></span><button class="btn sm" id="bRepl">Replace</button><button class="btn sm" id="bRem">Remove</button></div>
+      <div class="g2"><button class="btn" data-go="crop">✂️ Crop logo</button><button class="btn" data-go="resize">↔️ Resize logo</button></div>
+      <p class="hint">Backing and border for the logo are under Style → Logo.</p>
+     </div>
+    </div>
 
-     <details class="sub"><summary>Crop mask size &amp; position</summary><div class="bd">
-      <div class="g2">
-       <div class="fld" data-o="L" data-k="mx" data-mul="0.1" data-num data-l="X" data-u="%" data-min="0" data-max="100" data-step="0.1"></div>
-       <div class="fld" data-o="L" data-k="my" data-mul="0.1" data-num data-l="Y" data-u="%" data-min="0" data-max="100" data-step="0.1"></div>
-       <div class="fld" data-o="L" data-k="mw" data-mul="0.1" data-num data-l="Width" data-u="%" data-min="3" data-max="100" data-step="0.1"></div>
-       <div class="fld" data-o="L" data-k="mh" data-mul="0.1" data-num data-l="Height" data-u="%" data-min="3" data-max="100" data-step="0.1"></div>
-      </div>
-      <label class="chk"><input type="checkbox" data-b="L.lockM"> Keep mask ratio when resizing</label>
-      <button class="btn sm" id="bMaskReset">Reset mask to image</button>
-     </div></details>
+    <div class="scr" data-s="crop">
+     <div data-no class="stack"><p class="hint">Choose a logo first.</p><button class="btn pri" data-go="logo">Choose logo</button></div>
+     <div data-has hidden class="stack">
+      <div class="seg" data-seg="L.mode"><button data-v="mask">Crop mask</button><button data-v="image">Stretch / move image</button></div>
+      <div class="seg" data-seg="S.shape"><button data-v="rect">Rectangle</button><button data-v="circle">Circle / oval</button><button data-v="round">Rounded</button></div>
+      <div class="fld" id="radRow" data-o="S" data-k="rad" data-l="Corner rounding" data-u="%" data-min="0" data-max="100" data-step="1"></div>
+      <details class="sub"><summary>Exact size &amp; position (numbers)</summary><div class="bd">
+       <b style="font-size:13px">Crop mask</b>
+       <div class="g2">
+        <div class="fld" data-o="L" data-k="mx" data-mul="0.1" data-num data-l="X" data-u="%" data-min="0" data-max="100" data-step="0.1"></div>
+        <div class="fld" data-o="L" data-k="my" data-mul="0.1" data-num data-l="Y" data-u="%" data-min="0" data-max="100" data-step="0.1"></div>
+        <div class="fld" data-o="L" data-k="mw" data-mul="0.1" data-num data-l="Width" data-u="%" data-min="3" data-max="100" data-step="0.1"></div>
+        <div class="fld" data-o="L" data-k="mh" data-mul="0.1" data-num data-l="Height" data-u="%" data-min="3" data-max="100" data-step="0.1"></div>
+       </div>
+       <label class="chk"><input type="checkbox" data-b="L.lockM"> Keep mask ratio when resizing</label>
+       <button class="btn sm" id="bMaskReset">Reset mask to image</button>
+       <b style="font-size:13px">Image (stretch X / Y)</b>
+       <div class="g2">
+        <div class="fld" data-o="L" data-k="ix" data-mul="0.1" data-num data-l="X" data-u="%" data-min="-500" data-max="500" data-step="0.1"></div>
+        <div class="fld" data-o="L" data-k="iy" data-mul="0.1" data-num data-l="Y" data-u="%" data-min="-500" data-max="500" data-step="0.1"></div>
+        <div class="fld" data-o="L" data-k="iw" data-mul="0.1" data-num data-l="Width" data-u="%" data-min="3" data-max="3000" data-step="0.1"></div>
+        <div class="fld" data-o="L" data-k="ih" data-mul="0.1" data-num data-l="Height" data-u="%" data-min="3" data-max="3000" data-step="0.1"></div>
+       </div>
+       <label class="chk"><input type="checkbox" data-b="L.lockI"> Keep image aspect (untick to stretch X / Y separately)</label>
+       <button class="btn sm" id="bImgFit">Fit image to editor</button>
+      </div></details>
+     </div>
+    </div>
 
-     <details class="sub"><summary>Image size &amp; position (stretch X / Y)</summary><div class="bd">
-      <div class="g2">
-       <div class="fld" data-o="L" data-k="ix" data-mul="0.1" data-num data-l="X" data-u="%" data-min="-500" data-max="500" data-step="0.1"></div>
-       <div class="fld" data-o="L" data-k="iy" data-mul="0.1" data-num data-l="Y" data-u="%" data-min="-500" data-max="500" data-step="0.1"></div>
-       <div class="fld" data-o="L" data-k="iw" data-mul="0.1" data-num data-l="Width" data-u="%" data-min="3" data-max="3000" data-step="0.1"></div>
-       <div class="fld" data-o="L" data-k="ih" data-mul="0.1" data-num data-l="Height" data-u="%" data-min="3" data-max="3000" data-step="0.1"></div>
-      </div>
-      <label class="chk"><input type="checkbox" data-b="L.lockI"> Keep image aspect ratio (uncheck to stretch X / Y separately)</label>
-      <button class="btn sm" id="bImgFit">Fit image to editor</button>
-     </div></details>
-
-     <details class="sub"><summary>Logo on the QR</summary><div class="bd">
+    <div class="scr" data-s="resize">
+     <div data-no class="stack"><p class="hint">Choose a logo first.</p><button class="btn pri" data-go="logo">Choose logo</button></div>
+     <div data-has hidden class="stack">
       <div class="fld" data-o="S" data-k="lw" data-l="Width" data-u="% of QR" data-min="3" data-max="60" data-step="0.5"></div>
       <label class="chk"><input type="checkbox" data-b="S.lock"> Follow the crop’s shape (lock aspect)</label>
       <div class="fld" id="lhRow" data-o="S" data-k="lh" data-l="Height" data-u="% of QR" data-min="3" data-max="60" data-step="0.5"></div>
-      <div class="g2">
-       <div class="fld" data-o="S" data-k="lx" data-l="Offset X" data-u="%" data-min="-40" data-max="40" data-step="0.5" data-num></div>
-       <div class="fld" data-o="S" data-k="ly" data-l="Offset Y" data-u="%" data-min="-40" data-max="40" data-step="0.5" data-num></div>
-      </div>
-      <label class="chk"><input type="checkbox" data-b="S.bk"> Solid backing behind logo</label>
-      <div class="g2" id="bkRow">
-       <div><label class="l">Backing color</label><input type="color" data-b="S.bkc"></div>
-       <div class="fld" data-o="S" data-k="cz" data-l="Clear zone" data-u="%" data-min="0" data-max="30" data-step="0.5" data-num></div>
-      </div>
-      <div class="g2">
-       <div class="fld" data-o="S" data-k="lb" data-l="Logo border" data-u="% of logo" data-min="0" data-max="25" data-step="0.5" data-num></div>
-       <div><label class="l">Border color</label><input type="color" data-b="S.lbc"></div>
-      </div>
+      <div class="fld" data-o="S" data-k="lx" data-l="Move left / right" data-u="%" data-min="-40" data-max="40" data-step="0.5"></div>
+      <div class="fld" data-o="S" data-k="ly" data-l="Move up / down" data-u="%" data-min="-40" data-max="40" data-step="0.5"></div>
       <p class="hint" id="cov"></p>
-     </div></details>
+     </div>
     </div>
-   </div>
-  </details>
 
-  <details class="sec">
-   <summary>3 · Border &amp; padding</summary>
-   <div class="bd">
-    <div class="fld" data-o="S" data-k="bt" data-l="Border thickness" data-u="% of width" data-min="0" data-max="15" data-step="0.1"></div>
-    <div><label class="l">Border color</label><input type="color" data-b="S.bc"></div>
-    <div class="fld" data-o="S" data-k="br" data-l="Outer corner radius" data-u="% of box" data-min="0" data-max="50" data-step="0.5"></div>
-    <p class="warn-t" id="brWarn" hidden>⚠ Rounded corners clip the code’s corner squares — raise the quiet zone or lower the radius.</p>
-    <div class="fld" data-o="S" data-k="pad" data-l="Padding beyond the QR" data-u="% of width" data-min="0" data-max="30" data-step="0.1"></div>
-    <div class="g2">
-     <div><label class="l">Padding color</label><input type="color" data-b="S.padc"></div>
-     <label class="chk" style="align-self:end"><input type="checkbox" data-b="S.padT"> Transparent</label>
+    <div class="scr" data-s="style">
+     <div class="seg" data-tabs="style"><button data-t="border">Border</button><button data-t="padding">Padding</button><button data-t="colors">Colors</button><button data-t="logo">Logo</button></div>
+     <div data-tab="style:border" class="stack">
+      <div class="fld" data-o="S" data-k="bt" data-l="Border thickness" data-u="% of width" data-min="0" data-max="15" data-step="0.1"></div>
+      <div class="fld" data-o="S" data-k="br" data-l="Roundness (outer corner radius)" data-u="% of box" data-min="0" data-max="50" data-step="0.5"></div>
+      <div><label class="l">Border color</label><input type="color" data-b="S.bc"></div>
+      <p class="warn-t" id="brWarn" hidden>⚠ Rounded corners clip the code’s corner squares — raise the quiet zone or lower the radius.</p>
+     </div>
+     <div data-tab="style:padding" class="stack">
+      <div class="fld" data-o="S" data-k="pad" data-l="Padding beyond the QR" data-u="% of width" data-min="0" data-max="30" data-step="0.1"></div>
+      <div class="g2"><div><label class="l">Padding color</label><input type="color" data-b="S.padc"></div>
+       <label class="chk" style="align-self:end"><input type="checkbox" data-b="S.padT"> Transparent</label></div>
+      <p class="hint">Transparent padding works for PNG / WebP. JPG and PDF fill it with white.</p>
+     </div>
+     <div data-tab="style:colors" class="stack">
+      <div class="g2"><div><label class="l" for="fg">QR color</label><input type="color" id="fg" data-b="S.fg"></div>
+       <div><label class="l" for="bg">QR background</label><input type="color" id="bg" data-b="S.bg"></div></div>
+     </div>
+     <div data-tab="style:logo" class="stack">
+      <div data-no class="stack"><p class="hint">Choose a logo to style it.</p><button class="btn pri" data-go="logo">Choose logo</button></div>
+      <div data-has hidden class="stack">
+       <label class="chk"><input type="checkbox" data-b="S.bk"> Solid backing behind logo</label>
+       <div id="bkRow"><label class="l">Backing color</label><input type="color" data-b="S.bkc"></div>
+       <div class="g2"><div class="fld" data-o="S" data-k="lb" data-l="Logo border" data-u="% of logo" data-min="0" data-max="25" data-step="0.5" data-num></div>
+        <div><label class="l">Border color</label><input type="color" data-b="S.lbc"></div></div>
+      </div>
+     </div>
     </div>
-    <p class="hint">Transparent padding works for PNG / WebP. JPG and PDF fill it with white.</p>
-   </div>
-  </details>
 
-  <details class="sec">
-   <summary>4 · Export</summary>
-   <div class="bd">
-    <div><label class="l">Format</label>
-     <div class="seg" data-seg="S.fmt"><button data-v="png">PNG</button><button data-v="jpg">JPG</button><button data-v="webp">WebP</button><button data-v="pdf">PDF</button></div></div>
-    <div class="fld" id="qualRow" data-o="S" data-k="qual" data-l="Quality" data-u="" data-min="0.5" data-max="1" data-step="0.01"></div>
-    <div class="fld" id="pmRow" data-o="S" data-k="pm" data-l="PDF page margin (around the padding)" data-u="% of QR" data-min="0" data-max="30" data-step="0.5"></div>
-    <div class="g2">
-     <div><label class="l" for="size">Size</label><input type="number" id="size" data-b="S.size" min="1" step="any" inputmode="decimal"></div>
-     <div><label class="l" for="unit">Unit</label><select id="unit" data-b="S.unit"><option value="px">pixels</option><option value="in">inches</option><option value="cm">cm</option><option value="mm">mm</option></select></div>
+    <div class="scr" data-s="export">
+     <div class="seg" data-tabs="exp"><button data-t="fmt">Format</button><button data-t="size">Size &amp; DPI</button></div>
+     <div data-tab="exp:fmt" class="stack">
+      <div class="seg" data-seg="S.fmt"><button data-v="png">PNG</button><button data-v="jpg">JPG</button><button data-v="webp">WebP</button><button data-v="pdf">PDF</button></div>
+      <div class="fld" id="qualRow" data-o="S" data-k="qual" data-l="Quality" data-u="" data-min="0.5" data-max="1" data-step="0.01"></div>
+      <div class="fld" id="pmRow" data-o="S" data-k="pm" data-l="PDF page margin (around the padding)" data-u="% of QR" data-min="0" data-max="30" data-step="0.5"></div>
+      <div><label class="l">Preview mode</label>
+       <div class="seg" data-mode="acc" role="group"><button data-v="0" class="on">Live</button><button data-v="1">Accurate (exact file)</button></div>
+       <p class="hint" style="margin-top:4px">Accurate generates the real file and shows those exact bytes; Download saves that same file.</p></div>
+     </div>
+     <div data-tab="exp:size" class="stack">
+      <div><label class="l">Common sizes (pixels)</label>
+       <div class="chips" id="szChips"><button class="btn sm" data-s="128">128</button><button class="btn sm" data-s="256">256</button><button class="btn sm" data-s="512">512</button><button class="btn sm" data-s="1024">1024</button><button class="btn sm" data-s="2048">2048</button><button class="btn sm" data-s="4096">4096</button></div></div>
+      <div class="g2">
+       <div><label class="l" for="size">Size</label><input type="number" id="size" data-b="S.size" min="1" step="any" inputmode="decimal"></div>
+       <div><label class="l" for="unit">Unit</label><select id="unit" data-b="S.unit"><option value="px">pixels</option><option value="in">inches</option><option value="cm">cm</option><option value="mm">mm</option></select></div>
+      </div>
+      <div><label class="l" for="dpi">DPI (print resolution)</label>
+       <input type="number" id="dpi" data-b="S.dpi" min="36" max="2400" step="1" inputmode="numeric">
+       <div class="chips" style="margin-top:6px" id="dpiChips"><button class="btn sm" data-d="72">72</button><button class="btn sm" data-d="150">150</button><button class="btn sm" data-d="300">300</button><button class="btn sm" data-d="600">600</button><button class="btn sm" data-d="1200">1200</button></div></div>
+      <p class="hint" id="outinfo"></p>
+      <p class="warn-t" id="outwarn" hidden></p>
+     </div>
+     <div class="foot"><div class="g2"><button class="btn pri" id="bSave" style="min-height:48px">⬇ Download</button><button class="btn" id="bShare" hidden style="min-height:48px">Share…</button></div></div>
     </div>
-    <div><label class="l">Common sizes (pixels)</label>
-     <div class="chips" id="szChips"><button class="btn sm" data-s="128">128</button><button class="btn sm" data-s="256">256</button><button class="btn sm" data-s="512">512</button><button class="btn sm" data-s="1024">1024</button><button class="btn sm" data-s="2048">2048</button><button class="btn sm" data-s="4096">4096</button></div></div>
-    <div><label class="l" for="dpi">DPI (print resolution)</label>
-     <input type="number" id="dpi" data-b="S.dpi" min="36" max="2400" step="1" inputmode="numeric">
-     <div class="chips" style="margin-top:6px" id="dpiChips"><button class="btn sm" data-d="72">72</button><button class="btn sm" data-d="150">150</button><button class="btn sm" data-d="300">300</button><button class="btn sm" data-d="600">600</button><button class="btn sm" data-d="1200">1200</button></div></div>
-    <p class="hint" id="outinfo"></p>
-    <p class="warn-t" id="outwarn" hidden></p>
-    <div class="g2"><button class="btn pri" id="bSave" style="min-height:48px">⬇ Download</button><button class="btn" id="bShare" hidden style="min-height:48px">Share…</button></div>
-    <p class="hint">PNG &amp; JPG embed the DPI; the PDF is always one square page that grows to fit the code plus its margin. Turn on <b>Accurate</b> to preview the exact file that will be saved.</p>
+
+    <div class="scr" data-s="more">
+     <div><label class="l">Page theme (the preview never changes)</label>
+      <div class="seg" id="theme" role="group" aria-label="Theme"><button data-v="auto">Auto</button><button data-v="light">Light</button><button data-v="dark">Dark</button></div></div>
+    </div>
+
    </div>
-  </details>
- <details class="sec">
-   <summary>5 · Session (save / load)</summary>
-   <div class="bd">
-    <p class="hint">Saves every setting plus the full logo image (base64) into one .json file, so you can pick up exactly where you left off.</p>
-    <div class="g2"><button class="btn pri" id="bSesSave">Save session</button><button class="btn" id="bSesLoad">Load session</button></div>
-    <input type="file" id="sesFile" accept=".json,application/json" hidden>
-   </div>
-  </details>
- </main>
+  </section>
+ </div>
 </div>
+
+<button id="fab" aria-label="Edit menu" aria-haspopup="true">✏️</button>
+<div id="mback" hidden></div>
+<div id="menu" hidden role="menu">
+ <button class="mi" data-go="link"><span>🔗</span>Link</button>
+ <button class="mi" data-go="logo"><span>🖼️</span>Logo</button>
+ <button class="mi" data-go="crop"><span>✂️</span>Crop logo</button>
+ <button class="mi" data-go="resize"><span>↔️</span>Resize logo</button>
+ <button class="mi" data-go="style"><span>🎨</span>Style</button>
+ <button class="mi" data-go="export"><span>📤</span>Export</button>
+ <button class="mi" id="bView"><span>🔍</span>Zoom view</button>
+ <button class="mi" id="bScan"><span>✅</span>Scan test</button>
+ <button class="mi" id="mSesSave"><span>💾</span>Save session</button>
+ <button class="mi" id="mSesLoad"><span>📂</span>Load session</button>
+ <button class="mi" data-go="more" style="grid-column:1/-1"><span>⚙️</span>Settings</button>
+</div>
+<input type="file" id="sesFile" accept=".json,application/json" hidden>
+<div id="msg" role="status" aria-live="polite"></div>
 
 <div id="vw" hidden role="dialog" aria-label="Zoom view">
  <div class="vt">
@@ -2576,12 +2597,12 @@ const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const dprf=()=>Math.min(window.devicePixelRatio||1,3);
 
 /* ---------------- state ---------------- */
-const S={text:'https://example.com',ec:'H',q:4,fg:'#000000',bg:'#ffffff',
- shape:'rect',rad:30,lw:24,lh:24,lock:true,lx:0,ly:0,bk:true,bkc:'#ffffff',cz:3,lb:0,lbc:'#000000',
+const S={text:'',ec:'H',q:4,fg:'#000000',bg:'#ffffff',
+ shape:'rect',rad:30,lw:24,lh:24,lock:true,lx:0,ly:0,bk:true,bkc:'#ffffff',lb:0,lbc:'#000000',
  bt:0,bc:'#000000',br:0,pad:0,padc:'#ffffff',padT:false,
  fmt:'png',qual:.95,pm:6,size:1000,unit:'px',dpi:300,acc:false};
 const L={img:null,small:null,url:'',name:'',ix:0,iy:0,iw:1000,ih:1000,mx:0,my:0,mw:1000,mh:1000,mode:'mask',lockM:false,lockI:true};
-const MIN=30;
+const MIN=30;let logoSeq=0;
 const objOf=n=>n==='L'?L:S;
 
 /* ---------------- QR matrix ---------------- */
@@ -2623,7 +2644,7 @@ function logoRect(g){
 }
 function drawLogoBox(c,x,y,w,h,hi){
  const src=hi?L.img:(L.small||L.img),rp=radPx(w,h);
- if(S.bk){const gz=S.cz/100*Math.min(w,h);c.fillStyle=S.bkc;c.beginPath();shapePath(c,x-gz,y-gz,w+2*gz,h+2*gz,S.shape,rp+gz);c.fill();}
+ if(S.bk){c.fillStyle=S.bkc;c.beginPath();shapePath(c,x,y,w,h,S.shape,rp);c.fill();}
  c.save();c.beginPath();shapePath(c,x,y,w,h,S.shape,rp);c.clip();
  const sx=w/L.mw,sy=h/L.mh;
  c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';
@@ -2637,16 +2658,15 @@ function renderDesign(c,T,o){
  c.save();
  if(o.opaque){c.fillStyle='#fff';c.fillRect(0,0,T,T);}else c.clearRect(0,0,T,T);
  if(!S.padT){c.fillStyle=S.padc;c.fillRect(0,0,T,T);}
- if(!q){c.restore();return;}
  const g=geom(T);
  if(g.bt>0){c.fillStyle=S.bc;c.beginPath();rr(c,g.pad,g.pad,g.box,g.box,g.R);c.fill();}
  c.fillStyle=S.bg;c.beginPath();rr(c,g.ix,g.ix,g.inner,g.inner,g.ir);c.fill();
  c.save();
  if(g.ir>0){c.beginPath();rr(c,g.ix,g.ix,g.inner,g.inner,g.ir);c.clip();}
- const n=q.n,m=g.m,x0=g.ix+S.q*m,xs=new Array(n+1);
+ const n=g.n,m=g.m,x0=g.ix+S.q*m,xs=new Array(n+1);
  for(let i=0;i<=n;i++)xs[i]=o.nosnap?x0+i*m:Math.round(x0+i*m);
  c.fillStyle=S.fg;c.beginPath();
- for(let r=0;r<n;r++){let c0=-1;
+ for(let r=0;r<n&&q;r++){let c0=-1;
   for(let k=0;k<=n;k++){const d=k<n&&q.m[r*n+k];
    if(d&&c0<0)c0=k;
    else if(!d&&c0>=0){c.rect(xs[c0],xs[r],xs[k]-xs[c0],xs[r+1]-xs[r]);c0=-1;}}}
@@ -2719,18 +2739,19 @@ function syncUI(skip){
 }
 function updateVis(){
  const has=!!L.img;
- $('#dz').hidden=has;const lt=$('#logoTools');lt.hidden=!has;lt.style.display=has?'grid':'none';
+ $$('[data-has]').forEach(e=>e.hidden=!has);$$('[data-no]').forEach(e=>e.hidden=has);
+ $('#app').classList.toggle('nologo',!has);
+ $('#fname').textContent=has?L.name+' ('+(L.img.naturalWidth||512)+'×'+(L.img.naturalHeight||512)+')':'';
  $('#radRow').hidden=S.shape!=='round';
  $('#lhRow').hidden=S.lock;
  $('#pmRow').hidden=S.fmt!=='pdf';
  $('#qualRow').hidden=!(S.fmt==='jpg'||S.fmt==='webp');
  $('#bkRow').style.opacity=S.bk?1:.45;
  $('#edhint').textContent=L.mode==='mask'
-  ?'Drag the white handles to crop. Drag inside the mask to move it; drag outside to slide the image under it.'
-  :'Drag edge handles to stretch X or Y alone; corners scale both (hold the lock off to stretch freely). Drag to move; scroll or pinch to zoom the image.';
+  ?'Drag handles to crop · drag inside to move the mask · drag outside to slide the image'
+  :'Edge handles stretch X or Y · corners scale · drag to move · pinch / scroll to zoom';
  $$('#szChips button').forEach(b=>b.classList.toggle('on',S.unit==='px'&&+S.size===+b.dataset.s));
  $('#bShare').hidden=!(navigator.canShare&&navigator.share);
- $('#bPin').classList.toggle('on',!$('#app').classList.contains('nopin'));
  /* info */
  const q=getQR();
  $('#qinfo').textContent=q?('Version '+q.ver+' · '+q.n+'×'+q.n+' modules · '+S.text.trim().length+' chars'):(qrc.err||'Type a link above to create a code.');
@@ -2752,13 +2773,13 @@ function updateVis(){
  $('#stat').innerHTML=statText();
 }
 function coverage(){
- const g=geom(1000),r=logoRect(g),gz=S.bk?S.cz/100*Math.min(r.w,r.h):0;
- const a=(r.w+2*gz)*(r.h+2*gz)/(r.mat*r.mat);
+ const g=geom(1000),r=logoRect(g);
+ const a=r.w*r.h/(r.mat*r.mat);
  return a*(S.shape==='circle'?.785:S.shape==='round'?1-(1-.785)*S.rad/100:1);
 }
 function statText(){
  if(S.acc&&A.info)return A.info;
- const q=getQR();if(!q)return qrc.err||'Enter a link to begin';
+ const q=getQR();if(!q)return qrc.err||'Blank QR — tap ✏️ then Link to add a link';
  return 'Live preview · v'+q.ver+' · '+q.n+'×'+q.n+(L.img?' · logo ≈ '+(coverage()*100).toFixed(0)+'%':'');
 }
 function sizing(){
@@ -2780,7 +2801,7 @@ async function loadFile(f,geom){
  img.src=url;
  try{await img.decode();}catch(e){URL.revokeObjectURL(url);toast('Could not read that image','bad');return;}
  const nw=img.naturalWidth||512,nh=img.naturalHeight||512;
- if(L.url)URL.revokeObjectURL(L.url);
+ L.id=++logoSeq;
  L.url=url;L.img=img;L.name=f.name;L.type=f.type||'';L.small=null;
  try{L.data=await toDataURL(f);}catch(e){L.data='';}
  const mx=Math.max(nw,nh);
@@ -2789,14 +2810,13 @@ async function loadFile(f,geom){
  L.iw=nw*sc;L.ih=nh*sc;L.ix=(1000-L.iw)/2;L.iy=(1000-L.ih)/2;
  resetMask();
  if(geom)['ix','iy','iw','ih','mx','my','mw','mh'].forEach(k=>{if(typeof geom[k]==='number'&&isFinite(geom[k]))L[k]=geom[k];});
- $('#fname').textContent=f.name+' ('+nw+'×'+nh+')';
  changed();syncUI();
  setTimeout(sizeEditor,0);
 }
 function resetMask(){L.mx=L.ix;L.my=L.iy;L.mw=L.iw;L.mh=L.ih;
  if(L.mx<0||L.my<0||L.mx+L.mw>1000.01||L.my+L.mh>1000.01){L.mx=clamp(L.mx,0,1000-MIN);L.my=clamp(L.my,0,1000-MIN);L.mw=Math.min(L.mw,1000-L.mx);L.mh=Math.min(L.mh,1000-L.my);}}
 function fitImage(){const nw=L.img.naturalWidth||512,nh=L.img.naturalHeight||512,sc=Math.min(1000/nw,1000/nh);L.iw=nw*sc;L.ih=nh*sc;L.ix=(1000-L.iw)/2;L.iy=(1000-L.ih)/2;}
-function removeLogo(){L.data='';if(L.url)URL.revokeObjectURL(L.url);L.url='';L.img=null;L.small=null;changed();syncUI();}
+function removeLogo(){L.data='';L.id=0;L.url='';L.img=null;L.small=null;changed();syncUI();}
 $('#file').addEventListener('change',e=>{loadFile(e.target.files[0]);e.target.value='';});
 $('#bRepl').addEventListener('click',()=>$('#file').click());
 $('#bRem').addEventListener('click',removeLogo);
@@ -2930,6 +2950,7 @@ function changed(o){
  if(!o.noEditor)drawEditor();
  cancelAnimationFrame(rafId);rafId=requestAnimationFrame(()=>{renderLive();updateVis();});
  if(S.acc)markStale();
+ schedHist();
 }
 const pc=$('#pc'),pcx=pc.getContext('2d');
 function renderLive(){
@@ -3057,17 +3078,16 @@ async function saveBlob(blob,name){
  setTimeout(()=>URL.revokeObjectURL(u),60000);toast('Downloaded '+name+' ('+fmtSize(blob.size)+')','ok');
 }
 async function doSave(){
- const b1=$('#bSave'),b2=$('#bSave2');b1.disabled=b2.disabled=true;busy(true);
+ const b1=$('#bSave');b1.disabled=true;busy(true);
  try{const f=await getFile();await saveBlob(f.blob,f.name);}catch(e){toast(e.message||String(e),'bad');}
- finally{b1.disabled=b2.disabled=false;if(!(S.acc&&A.tok&&!A.fresh))busy(false);}
+ finally{b1.disabled=false;if(!(S.acc&&A.tok&&!A.fresh))busy(false);}
 }
-$('#bSave').addEventListener('click',doSave);$('#bSave2').addEventListener('click',doSave);
+$('#bSave').addEventListener('click',doSave);
 $('#bShare').addEventListener('click',async()=>{
  try{const f=await getFile(),file=new File([f.blob],f.name,{type:f.blob.type});
   if(navigator.canShare({files:[file]}))await navigator.share({files:[file],title:'QR code'});else toast('Sharing files is not supported here','warn');}
  catch(e){if(e&&e.name!=='AbortError')toast(e.message||String(e),'bad');}
 });
-$('#bPin').addEventListener('click',()=>{$('#app').classList.toggle('nopin');updateVis();});
 $('#bScan').addEventListener('click',async()=>{
  if(!getQR()){toast('Nothing to scan yet','warn');return;}
  if(!('BarcodeDetector' in window)){toast('This browser can’t self-test scans — try your phone camera.','warn');return;}
@@ -3167,8 +3187,8 @@ async function loadSession(f){
   changed();syncUI();toast('Session loaded','ok');
  }catch(e){toast('That is not a valid QR Studio session file','bad');}
 }
-$('#bSesSave').addEventListener('click',saveSession);
-$('#bSesLoad').addEventListener('click',()=>$('#sesFile').click());
+$('#mSesSave').addEventListener('click',saveSession);$('#mSesLoad').addEventListener('click',()=>$('#sesFile').click());
+
 $('#sesFile').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(f)loadSession(f);});
 
 /* ---------------- theme (page chrome only; preview keeps its own colors) ---------------- */
@@ -3180,6 +3200,69 @@ function setTheme(v,save){
 }
 $('#theme').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setTheme(b.dataset.v,true);});
 {let v='auto';try{v=localStorage.getItem('qrstudio-theme')||'auto';}catch(e){}setTheme(v,false);}
+
+/* ---------------- undo / redo / cancel history ---------------- */
+const H=[];let hi=-1,restoring=false,histT=0,startIdx=-1;
+const LK=['ix','iy','iw','ih','mx','my','mw','mh','mode','lockM','lockI'];
+function hkey(){const s=Object.assign({},S);delete s.acc;return JSON.stringify([s,L.id||0].concat(LK.map(k=>L[k])));}
+function snap(){const s=Object.assign({},S);delete s.acc;const l={img:L.img,small:L.small,url:L.url,name:L.name,type:L.type,data:L.data,id:L.id||0};LK.forEach(k=>l[k]=L[k]);return{key:hkey(),s,l};}
+function updUndo(){$('#bUndo').disabled=hi<=0;$('#bRedo').disabled=hi>=H.length-1;}
+function commitHist(){
+ clearTimeout(histT);histT=0;if(restoring)return;
+ const k=hkey();if(hi>=0&&H[hi].key===k)return;
+ H.length=hi+1;H.push(snap());
+ if(H.length>150){H.shift();startIdx=Math.max(0,startIdx-1);}
+ hi=H.length-1;updUndo();
+}
+function schedHist(){if(restoring)return;clearTimeout(histT);histT=setTimeout(commitHist,350);}
+function restore(sn){restoring=true;Object.assign(S,sn.s);Object.assign(L,sn.l);changed();syncUI();restoring=false;}
+function undo(){commitHist();if(hi>0){hi--;restore(H[hi]);updUndo();}}
+function redo(){commitHist();if(hi<H.length-1){hi++;restore(H[hi]);updUndo();}}
+function cancelSheet(){
+ commitHist();
+ if(startIdx>=0&&startIdx<H.length&&hi!==startIdx){H.length=startIdx+1;hi=startIdx;restore(H[hi]);}
+ updUndo();go('home');
+}
+
+/* ---------------- navigation: floating pencil, menu, bottom sheets ---------------- */
+const TITLES={link:'Link',logo:'Logo',crop:'Crop logo',resize:'Resize logo',style:'Style',export:'Export',more:'Settings'};
+let pushed=false;
+function showScreen(s){
+ if(!TITLES[s])s='home';
+ const prev=$('#app').dataset.screen;
+ if(prev==='home'&&s!=='home'){commitHist();startIdx=hi;}
+ if(s==='home')pushed=false;
+ $('#app').dataset.screen=s;
+ $$('.scr').forEach(e=>e.classList.toggle('on',e.dataset.s===s));
+ $('#ttl').textContent=TITLES[s]||'';
+ $('#sb').scrollTop=0;
+ requestAnimationFrame(()=>{renderLive();sizeEditor();});
+}
+const route=()=>{const m=/^#s-(\w+)$/.exec(location.hash);showScreen(m?m[1]:'home');};
+window.addEventListener('hashchange',route);
+function go(s){
+ if(s==='home'){if(pushed){pushed=false;history.back();}else{location.replace('#');route();}return;}
+ if($('#app').dataset.screen==='home'){pushed=true;location.hash='s-'+s;}
+ else{location.replace('#s-'+s);route();}
+}
+const menu=$('#menu'),fab=$('#fab'),mback=$('#mback');
+function setMenu(o){menu.hidden=!o;mback.hidden=!o;fab.textContent=o?'✕':'✏️';fab.setAttribute('aria-expanded',String(o));}
+fab.addEventListener('click',()=>setMenu(menu.hidden));
+mback.addEventListener('click',()=>setMenu(false));
+$('#bMenu').addEventListener('click',()=>setMenu(true));
+$('#bOk').addEventListener('click',()=>{commitHist();go('home');});
+$('#bCancel').addEventListener('click',cancelSheet);
+$('#bUndo').addEventListener('click',undo);$('#bRedo').addEventListener('click',redo);
+menu.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;setMenu(false);});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)go(b.dataset.go);});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!V.open){if(!menu.hidden)setMenu(false);else if($('#app').dataset.screen!=='home')cancelSheet();}});
+$$('[data-tabs]').forEach(tb=>{
+ const n=tb.dataset.tabs;
+ const set=v=>{$$('button',tb).forEach(b=>b.classList.toggle('on',b.dataset.t===v));$$('[data-tab^="'+n+':"]').forEach(g=>g.hidden=g.dataset.tab!==n+':'+v);};
+ tb.addEventListener('click',e=>{const b=e.target.closest('button');if(b){set(b.dataset.t);$('#sb').scrollTop=0;}});
+ set($('button',tb).dataset.t);
+});
+route();
 
 /* ---------------- init ---------------- */
 syncUI();changed();
